@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あなたのサロンに合うツール診断 | MAISON DOT.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=Noto+Sans+JP:wght@300;400&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cream:#F7F3EC;--white:#FDFCFA;--gold:#C9A961;--gold-light:#E8D5A3;--gold-pale:#F5EDD8;--text:#3D3022;--text-soft:#7A6A55;--border:#E8DFC9}
+body{background:var(--cream);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-weight:300;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
+.container{width:100%;max-width:640px}
+.header{text-align:center;margin-bottom:3rem}
+.brand{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.85rem;letter-spacing:.2em;color:var(--gold);margin-bottom:1.5rem;display:block}
+.header h1{font-weight:300;font-size:1.5rem;line-height:1.8;letter-spacing:.05em;margin-bottom:.75rem}
+.header p{font-size:.8rem;color:var(--text-soft);letter-spacing:.05em;line-height:1.8}
+.divider{width:40px;height:1px;background:var(--gold);margin:1.5rem auto}
+.progress-wrap{margin-bottom:2.5rem}
+.progress-label{font-size:.7rem;letter-spacing:.15em;color:var(--text-soft);text-align:right;margin-bottom:.5rem}
+.progress-bar{height:1px;background:var(--border)}
+.progress-fill{height:100%;background:var(--gold);transition:width .5s ease}
+.card{background:var(--white);border:1px solid var(--border);border-radius:2px;padding:2.5rem 2rem}
+.q-num{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.75rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.75rem}
+.q-text{font-size:1rem;font-weight:400;line-height:1.9;letter-spacing:.05em;margin-bottom:2rem}
+.options{display:flex;flex-direction:column;gap:.75rem}
+.option{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.25rem;background:var(--cream);border:1px solid var(--border);border-radius:2px;cursor:pointer;transition:all .2s;text-align:left;width:100%}
+.option:hover,.option.selected{border-color:var(--gold);background:var(--gold-pale)}
+.opt-badge{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.8rem;color:var(--gold);flex-shrink:0;padding-top:.1rem}
+.opt-text{font-size:.85rem;line-height:1.8;letter-spacing:.03em}
+.btn-next{margin-top:2rem;width:100%;padding:1rem;background:var(--gold);color:var(--white);border:none;border-radius:2px;font-family:'Noto Sans JP',sans-serif;font-weight:300;font-size:.85rem;letter-spacing:.15em;cursor:pointer;transition:opacity .2s}
+.btn-next:hover{opacity:.85}
+.btn-next:disabled{opacity:.35;cursor:not-allowed}
+.result{display:none;text-align:center}
+.r-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.8rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.5rem}
+.r-title{font-size:1.4rem;font-weight:400;letter-spacing:.08em;margin-bottom:.5rem;line-height:1.6}
+.r-sub{font-size:.8rem;color:var(--text-soft);letter-spacing:.05em;margin-bottom:2rem;line-height:1.8}
+.r-body{text-align:left;background:var(--white);border:1px solid var(--border);border-radius:2px;padding:2rem;margin-bottom:1.5rem}
+.r-body p{font-size:.85rem;line-height:2;letter-spacing:.03em;margin-bottom:1rem}
+.r-body p:last-child{margin-bottom:0}
+.r-body em{font-style:normal;font-weight:400}
+.r-price{font-family:'Cormorant Garamond',serif;font-size:1.1rem;letter-spacing:.1em;color:var(--gold);margin-bottom:1.5rem}
+.btn-cta{display:inline-block;padding:1rem 2.5rem;background:var(--gold);color:var(--white);text-decoration:none;font-family:'Noto Sans JP',sans-serif;font-weight:300;font-size:.85rem;letter-spacing:.15em;border-radius:2px;transition:opacity .2s}
+.btn-cta:hover{opacity:.85}
+.btn-retry{display:block;margin:1.25rem auto 0;background:none;border:none;font-size:.75rem;color:var(--text-soft);letter-spacing:.1em;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:480px){.card{padding:1.75rem 1.25rem}.header h1{font-size:1.2rem}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="brand">MAISON DOT.</span>
+    <h1>あなたのサロンに<br>合うツール診断</h1>
+    <div class="divider"></div>
+    <p>5つの質問に答えるだけで、<br>今のあなたに必要なツールがわかります。</p>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span id="ptxt">1 / 5</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="pfill" style="width:20%"></div></div>
+  </div>
+  <div class="card" id="qcard">
+    <div class="q-num" id="qnum">Question 01</div>
+    <div class="q-text" id="qtext"></div>
+    <div class="options" id="opts"></div>
+    <button class="btn-next" id="btnNext" disabled onclick="next()">次へ</button>
+  </div>
+  <div class="card result" id="rcard">
+    <div class="r-label">Your Result</div>
+    <div class="r-title" id="rtitle"></div>
+    <div class="r-sub" id="rsub"></div>
+    <div class="r-body" id="rbody"></div>
+    <div class="r-price" id="rprice"></div>
+    <a href="#" class="btn-cta" id="rcta"></a>
+    <button class="btn-retry" onclick="retry()">もう一度診断する</button>
+  </div>
+</div>
+<script>
+const Q=[
+{t:"今のサロン管理、どんな状態ですか？",o:[
+{l:"A",t:"ノート・メモ・スマホがバラバラで、どこにあるかわからない",v:"c"},
+{l:"B",t:"なんとなく管理はしてるけど、数字の意味がよくわからない",v:"o"},
+{l:"C",t:"管理より先に、自分のサロンの「軸」がぼやけている気がする",v:"v"}]},
+{t:"月末に一番ストレスを感じるのは？",o:[
+{l:"A",t:"売上を計算するのが面倒で、後回しにしてしまう",v:"c"},
+{l:"B",t:"次月の集客や計画が、なんとなくで終わっている",v:"o"},
+{l:"C",t:"「なぜこのサロンをやっているか」を説明できない自分がいる",v:"v"}]},
+{t:"お客様について、どこまで把握していますか？",o:[
+{l:"A",t:"名前と施術内容はほぼ覚えているが、記録はほぼない",v:"c"},
+{l:"B",t:"記録はあるけど、活かせていない",v:"o"},
+{l:"C",t:"お客様との関係より、まず自分のサロンの価値を言語化したい",v:"v"}]},
+{t:"価格について、正直なところ",o:[
+{l:"A",t:"なんとなく相場に合わせて決めた。根拠は薄い",v:"c"},
+{l:"B",t:"値上げしたいけど、断られそうで、踏み出せない",v:"o"},
+{l:"C",t:"価格より先に、提供している価値の整理が追いついていない",v:"v"}]},
+{t:"理想のサロン経営に一番近いのは？",o:[
+{l:"A",t:"日々の業務がスムーズに回っていて、数字が見えている状態",v:"c"},
+{l:"B",t:"集客・顧客・売上・計画が全てつながって、経営が「仕組み」になっている状態",v:"o"},
+{l:"C",t:"自分のサロンが何者か、迷いなく語れる状態",v:"v"}]}
+];
+const R={
+c:{title:"Salon Carnet",sub:"まず、日々の記録を整えることが先決です。",body:"<p>ExcelやGoogleスプレッドシートでも、売上管理はできます。手書きのノートで顧客リストを作ることもできる。無料でできることは、たくさんあります。</p><p>それでもSalon Carnetを選ぶ人は、<em>「整っていること」自体に価値を感じている人。</em>開くたびに、自分のサロンを誇れる帳簿がほしい人です。</p><p>売上・顧客・施術記録を、美しくシンプルに一元管理。明日から使えます。</p>",price:"¥3,480",cta:"Salon Carnetを見る",url:"https://maison-dot.stores.jp/items/69e1a5035c2c0719089d08d0"},
+o:{title:"SALON MAISON OS",sub:"あなたのサロンには、経営を「仕組み化」する器が必要です。",body:"<p>NotionやExcelで自分なりの管理システムを作ることもできます。YouTubeで経営の勉強をすることもできる。時間をかければ、無料でたどり着けるかもしれない。</p><p>それでもSALON MAISON OSを選ぶ人は、<em>「今すぐ、整った状態から始めたい」人。</em>売上・顧客・集客・価格・計画——すべてがつながった経営を、美しい一箇所で回したい人です。</p><p>7つの機能が、あなたのサロンの「経営参謀」になる。</p>",price:"¥12,800",cta:"SALON MAISON OSを見る",url:"https://maison-dot.stores.jp/items/6a2ce65113b903c851e5b681"},
+v:{title:"Visionary Salon Design",sub:"あなたに必要なのは、「管理」より先に「軸」です。",body:"<p>ブランディングの本を読むことも、Pinterestで世界観を集めることもできる。無料で学べるコンテンツは、探せばいくらでもある。</p><p>それでも、霧は晴れなかった。</p><p>Visionary Salon Designを選ぶ人は、<em>「なぜ選ばれるのか」を、自分の言葉で語れるようになりたい人。</em>感覚はある。技術もある。ただ——それを「価値」として伝える言葉が、まだ見つかっていないだけ。</p><p>世界観・価格・ターゲット・発信の軸——すべての土台を、ここから作る。</p>",price:"",cta:"Visionary Salon Designを見る",url:"https://maison-dot.stores.jp/items/69cdb7b4d34c9c1041cdd571"}
+};
+let cur=0,sc={c:0,o:0,v:0},sel=null;
+function render(){
+  const q=Q[cur];
+  document.getElementById('qnum').textContent='Question 0'+(cur+1);
+  document.getElementById('qtext').textContent=q.t;
+  const el=document.getElementById('opts');
+  el.innerHTML='';
+  q.o.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='option';
+    b.innerHTML='<span class="opt-badge">'+opt.l+'</span><span class="opt-text">'+opt.t+'</span>';
+    b.onclick=()=>{document.querySelectorAll('.option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');sel=opt.v;document.getElementById('btnNext').disabled=false};
+    el.appendChild(b);
+  });
+  sel=null;document.getElementById('btnNext').disabled=true;
+  document.getElementById('pfill').style.width=((cur+1)/5*100)+'%';
+  document.getElementById('ptxt').textContent=(cur+1)+' / 5';
+}
+function next(){
+  if(!sel)return;
+  sc[sel]++;
+  if(cur<4){cur++;render();}else{show();}
+}
+function show(){
+  const w=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0][0];
+  const r=R[w];
+  document.getElementById('qcard').style.display='none';
+  document.querySelector('.progress-wrap').style.display='none';
+  const rc=document.getElementById('rcard');
+  rc.style.display='block';
+  document.getElementById('rtitle').textContent=r.title;
+  document.getElementById('rsub').textContent=r.sub;
+  document.getElementById('rbody').innerHTML=r.body;
+  document.getElementById('rprice').textContent=r.price;
+  const cta=document.getElementById('rcta');
+  cta.textContent=r.cta;cta.href=r.url;
+  rc.scrollIntoView({behavior:'smooth'});
+}
+function retry(){cur=0;sc={c:0,o:0,v:0};sel=null;document.getElementById('qcard').style.display='block';document.querySelector('.progress-wrap').style.display='block';document.getElementById('rcard').style.display='none';render();}
+render();
+</script>
+</body>
+</html>
